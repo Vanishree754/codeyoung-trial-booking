@@ -1,481 +1,1775 @@
-# AI Development Transcript
+TRANSCRIPT.md — AI-Assisted Development Transcript
 
-This file records the major AI-assisted development sessions and decisions made during the implementation of the CodeYoung Trial Class Booking System.
+CodeYoung Full-Stack Trial Class Booking System
 
-The transcript is a concise development record rather than a verbatim conversation transcript. It summarizes the actual AI-assisted discussions, implementation changes, debugging steps, and design decisions made during development.
+This document records the AI-assisted development process used while building the CodeYoung Trial Class Booking System.
 
-The purpose of this document is to provide transparency about how AI assistance was used during development.
+Important note: This transcript is intended to document the actual development process honestly. It does not claim that every section below is a verbatim copy of an historical chat message. Where the exact original wording is not available, the prompt and response are summarized from the actual development discussion rather than fabricated as a verbatim conversation.
 
----
+1. Requirements Analysis
 
-## Session 1 - Assignment Analysis
+Prompt
 
-### Development Request
+I need to build the CodeYoung full-stack trial class booking assignment. Analyze the requirements carefully and help me plan the project so that it satisfies the assignment completely.
 
-Create a full-stack CodeYoung Trial Class Booking System using React/Vite, Node.js/Express, SQLite and Luxon. Follow the evaluator requirements, handle edge cases, use clean human-readable code, and think like a CodeYoung reviewer evaluating many candidates.
+The application needs:
 
-### AI Response
+React + Vite frontend
 
-The system should use React for the booking UI, Node.js/Express for REST APIs, SQLite for persistence and Luxon for IANA timezone/DST handling.
+Node.js + Express backend
 
-Booking timestamps should be stored in UTC. Backend services should own mentor assignment, capacity and conflict rules.
+SQLite database
 
-The implementation should include:
+Luxon for timezone handling
 
-- Parent booking details
-- Course/domain selection
-- Date and time selection
-- Mentor availability
-- Backend-controlled mentor assignment
-- SQLite persistence
-- UTC-based booking storage
-- Parent and mentor timezone conversion
-- Validation and error handling
-- Booking confirmation
-- Required API endpoints
-- Meaningful tests
-- README documentation
+10 mentors
 
----
+Maximum 2 trial/demo classes per mentor per day
 
-## Session 2 - Quality Requirements
+Automatic mentor assignment
 
-### Development Request
+Parent name/email
 
-The project must be humanly written and more optimal. Think like a CodeYoung employer reviewing approximately 40 submissions.
+Parent timezone
 
-### AI Response
+Date and time selection
 
-The implementation should prioritize correctness, maintainability, reliability, testability and user experience instead of adding unnecessary complexity.
+Mentor availability checking
 
-Business rules should be enforced on the backend.
+UTC storage
 
-The project should include meaningful tests, clear error states, sensible architecture and an accurate README.
+Parent and mentor local-time display
 
-The implementation should remain understandable and maintainable.
+DST support
 
----
+Booking confirmation
 
-## Session 3 - Review of First Implementation
+Meeting/class link
 
-### Development Request
+Validation
 
-Review whether the first implementation is optimal.
+Conflict detection
 
-### AI Response
+Concurrency handling
 
-The first implementation was a good foundation but needed stronger tests, better database query efficiency, more deliberate concurrency handling and explicit DST edge-case handling.
+Testing
 
-The booking logic should be centralized in backend services so that frontend behavior cannot bypass mentor availability, capacity or conflict rules.
+Good UX
 
----
+README
 
-## Session 4 - Optimization
+AI development transcript
 
-### Development Request
+AI Response / Development Summary
 
-Create the full optimal code satisfying the assignment and the quality requirements.
+The project should be implemented as a real full-stack application rather than a frontend-only mockup.
 
-### AI Response
+The core architecture should be:
 
-The implementation was improved to batch relevant booking reads, select mentors based on daily load and rating, perform booking creation inside a SQLite `BEGIN IMMEDIATE` transaction, validate timezone-aware booking times, handle DST-related local time issues, add business tests, and improve the booking and demo overview UI.
+React + Vite
+      |
+      | REST / JSON
+      v
+Node.js + Express
+      |
+      v
+SQLite
 
-The backend was kept authoritative for booking validation, mentor availability and mentor assignment.
+Luxon should be used for all timezone-aware date/time calculations.
 
----
+The database should store booking timestamps in UTC. The user's timezone and the mentor's timezone should be retained separately so that the same booking instant can be displayed correctly in both locations.
 
-## Session 5 - Course and Domain Selection
+The booking operation should be treated as a transactional operation:
 
-### Development Request
+Validate request.
 
-Add course/domain selection to the trial booking flow so that parents can choose the domain they want before selecting a trial time.
+Parse the requested local date/time using the supplied IANA timezone.
 
-### AI Response
+Convert it to UTC.
 
-The booking flow was updated to allow parents to select a course/domain.
+Reject invalid/past times.
 
-Course selection is validated by the backend, and mentor availability is filtered according to the selected course.
+Check existing bookings.
 
-The selected course is stored with the booking so that the learning domain remains associated with the trial class.
+Check mentor daily capacity.
 
-Demo course/domain options were added for the booking experience, including:
+Select an eligible mentor.
 
-- Python Programming
-- Web Development
-- AI & Machine Learning
-- Game Development
-- Coding & Programming
-- Data Science
+Create the booking.
 
----
+Commit the transaction.
 
-## Session 6 - Course-Specific Mentor Availability
+Generate/send the class details.
 
-### Development Request
+This design prevents the frontend from becoming the source of truth.
 
-Make sure that the available mentors shown to the parent are appropriate for the selected course.
+2. Technology Stack
 
-### AI Response
+Prompt
 
-Mentor availability was connected to the course mapping stored in the database.
+Choose an appropriate technology stack and explain why each technology should be used.
 
-The availability service checks the selected course and returns only active mentors who are associated with that course.
+AI Response / Development Summary
 
-Mentor availability is additionally checked against:
+The selected stack is:
 
-- Mentor working hours
-- Existing bookings
-- Mentor daily booking capacity
-- Booking time overlap
-- Mentor timezone
+Frontend
 
-This keeps course eligibility and scheduling rules on the backend.
+React
 
----
+Vite
 
-## Session 7 - Mentor Selection
+JavaScript/TypeScript depending on the final project configuration
 
-### Development Request
+Luxon
 
-Allow the parent to see available mentors for the selected course and choose a mentor based on the available mentor information and rating.
+CSS/responsive styling
 
-### AI Response
+Backend
 
-The availability API was updated to return eligible mentors for the selected course and requested time.
+Node.js
 
-The frontend displays the available mentors and allows the parent to select one.
+Express.js
 
-Mentor information includes details such as:
+REST APIs
 
-- Mentor name
-- Rating
-- Timezone
-- Current daily booking count
+JSON request/response format
 
-The backend remains authoritative and revalidates the selected mentor during the final booking request.
+Database
 
----
+SQLite
 
-## Session 8 - Backend Mentor Selection Fix
+Timezone
 
-### Development Request
+Luxon
 
-Ensure that when a parent explicitly selects a mentor, the backend books that selected mentor rather than automatically selecting another available mentor.
+IANA timezone identifiers
 
-### AI Response
+Testing
 
-The booking service was updated to accept the requested mentor ID.
+Automated backend/frontend tests appropriate to the final implementation.
 
-The backend validates the requested mentor against the currently eligible mentors before creating the booking.
+The implementation should avoid unnecessary dependencies and keep the architecture understandable for an evaluator.
 
-Mentor availability is rechecked inside the SQLite transaction.
+3. Project Architecture
 
-If the selected mentor is no longer available, the booking is rejected with an appropriate error rather than silently assigning a different mentor.
+Prompt
 
-If no mentor is explicitly selected, the backend can still use its deterministic automatic mentor-selection logic.
+Create a modular project structure that is easy to maintain and demonstrates good engineering practices.
 
----
+AI Response / Development Summary
 
-## Session 9 - Booking Validation and Duplicate Protection
+The application should be separated into frontend and backend responsibilities.
 
-### Development Request
+A representative structure is:
 
-Improve booking validation and handle cases where the parent already has a booking at the selected time or the selected mentor becomes unavailable.
+codeyoung-trial-booking/
+│
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   ├── services/
+│   │   ├── utils/
+│   │   └── styles/
+│   └── package.json
+│
+├── backend/
+│   ├── src/
+│   │   ├── routes/
+│   │   ├── services/
+│   │   ├── controllers/
+│   │   ├── utils/
+│   │   └── database/
+│   ├── prisma/
+│   └── package.json
+│
+├── README.md
+├── TRANSCRIPT.md
+├── .gitignore
+└── package.json
 
-### AI Response
+The exact structure should follow the actual implementation rather than forcing unnecessary abstractions.
 
-The booking flow was updated to detect duplicate or overlapping bookings for the same parent.
+4. Database Design
 
-The backend validates:
+Prompt
 
-- Parent name
-- Email
-- Course
-- Timezone
-- Date/time
-- Future booking time
-- Course existence
-- Mentor availability
+Design the database schema for mentors and bookings while supporting capacity, timezone conversion, conflicts, and future extensions.
 
-The system prevents the same parent from creating overlapping confirmed bookings.
+AI Response / Development Summary
 
-The backend rechecks mentor availability during booking creation so that a mentor cannot be double-booked through a race between availability checking and booking submission.
+The database needs at least:
 
----
+Mentor
 
-## Session 10 - Mentor Daily Capacity
+Representative fields:
 
-### Development Request
+id
+name
+timezone
+profile information
+createdAt
 
-Make sure each mentor cannot exceed the maximum number of trial classes allowed per day.
+Booking
 
-### AI Response
+Representative fields:
 
-Mentor availability was implemented using the mentor's local calendar day.
+id
+parentName
+parentEmail
+parentTimezone
+scheduledAtUtc
+mentorId
+status
+meetingUrl
+createdAt
+updatedAt
 
-The system calculates the mentor's local date from the UTC booking timestamp using the mentor's IANA timezone.
+The relationship is:
 
-Before a booking is created, the backend checks:
+Mentor 1 ---- N Booking
 
-- Existing confirmed bookings
-- Mentor-local booking date
-- Daily booking count
-- Maximum daily capacity
-- Time conflicts
+A booking must reference the assigned mentor.
 
-The default mentor capacity is two trial classes per day.
+The UTC booking timestamp is the authoritative scheduled instant.
 
-This rule is enforced by the backend rather than relying on the frontend.
+5. Mentor Data and Capacity
 
----
+Prompt
 
-## Session 11 - Timezone Handling
+There must be 10 mentors and each mentor can handle at most 2 demo classes per day. Design the mentor data and assignment rules.
 
-### Development Request
+AI Response / Development Summary
 
-Make the booking system correctly handle parent and mentor timezones and store booking times in UTC.
+The system should seed exactly the required mentor records.
 
-### AI Response
+For each requested booking:
 
-The system uses Luxon for timezone-aware date and time handling.
+Identify the requested booking instant.
 
-The parent selects a local date/time using an IANA timezone.
+Determine the relevant mentor-day capacity according to the application's defined business rule.
 
-The backend converts the requested parent-local time into UTC before storing it.
+Count the mentor's existing qualifying bookings.
 
-The stored UTC timestamp is then converted back into:
+Exclude mentors already at the daily limit.
 
-- Parent local time
-- Mentor local time
+Exclude mentors with a conflicting booking where required.
 
-when displaying booking information.
+Select an eligible mentor.
 
-This allows the same booking instant to be displayed correctly for users in different timezones.
+Persist the assignment transactionally.
 
----
+The frontend must never decide which mentor is assigned.
 
-## Session 12 - DST and Local-Time Validation
+6. Booking Flow
 
-### Development Request
+Prompt
 
-Handle timezone and daylight-saving-time edge cases correctly.
+Design the complete booking flow from the parent entering information until confirmation.
 
-### AI Response
+AI Response / Development Summary
 
-The booking logic uses Luxon and IANA timezone identifiers instead of manually calculating timezone offsets.
+The booking flow should be:
 
-The backend validates timezone-aware local booking times and converts valid times to UTC.
+Parent opens booking page
+        ↓
+Selects name/email
+        ↓
+Selects timezone
+        ↓
+Selects date/time
+        ↓
+Checks availability
+        ↓
+Backend validates request
+        ↓
+Requested local time → UTC
+        ↓
+Find eligible mentors
+        ↓
+Check capacity/conflicts
+        ↓
+Assign mentor
+        ↓
+Create booking transactionally
+        ↓
+Create booking-specific class link
+        ↓
+Send confirmation
+        ↓
+Return booking details
+        ↓
+Show confirmation page
 
-The implementation accounts for DST transitions so that timezone offsets are not hardcoded.
+The confirmation page should clearly display:
 
-The mentor working-hour check is performed using the mentor's local time.
+Parent information
 
-The system also ensures that a one-hour trial does not incorrectly cross the mentor's local calendar day.
+Booking date
 
----
+Parent local time
 
-## Session 13 - Parent Booking Time Protection
+Mentor name
 
-### Development Request
+Mentor local time
 
-Prevent a parent from booking the same time more than once and clearly communicate the problem in the frontend.
+Meeting/class link
 
-### AI Response
+Booking status
 
-A parent booking-time availability endpoint was added.
+Countdown where implemented
 
-The frontend checks existing bookings for the parent's email, selected date and timezone.
+7. Timezone Architecture
 
-If the parent already has a confirmed booking at the selected time, the system prevents another booking and displays a clear message asking the parent to choose another time.
+Prompt
 
-The backend performs its own duplicate check as the final authority.
+Implement timezone handling correctly. Do not use hardcoded UTC offsets.
 
----
+AI Response / Development Summary
 
-## Session 14 - Booking Confirmation
+All user-provided timezones must be represented using IANA timezone identifiers such as:
 
-### Development Request
+Asia/Kolkata
+America/New_York
+Europe/London
+Australia/Sydney
 
-Improve the confirmation page so that the completed booking is clearly communicated to the parent.
+The application must not implement timezone conversion using fixed offsets such as:
 
-### AI Response
+UTC + 5:30
+UTC - 4
 
-The confirmation page was redesigned to clearly display:
+because offsets change with daylight saving rules.
 
-- Booking status
-- Booking ID
-- Parent information
-- Selected course
-- Assigned mentor
-- Mentor rating
-- Parent timezone
-- Mentor timezone
-- Parent local date/time
-- Mentor local date/time
-- Meeting link
-- Booking countdown
+The correct flow is:
 
-The parent and mentor times are calculated from the same UTC booking timestamp, making the timezone relationship explicit.
+Parent local date/time
+        +
+Parent IANA timezone
+        ↓
+Luxon
+        ↓
+UTC instant
+        ↓
+Database
 
----
+When displaying the booking:
 
-## Session 15 - Google Meet Integration
+UTC instant
+      ↓
+Parent timezone
+      ↓
+Parent local time
 
-### Development Request
+UTC instant
+      ↓
+Mentor timezone
+      ↓
+Mentor local time
 
-Add a real Google Meet meeting link to the trial booking.
+This makes the same booking instant consistent across the application.
 
-### AI Response
+8. Daylight Saving Time
 
-Google Calendar integration was added to create a calendar event for a confirmed booking.
+Prompt
 
-The generated Google Meet link is stored with the booking and returned by the backend.
+Make sure daylight saving time works correctly.
 
-The confirmation page uses the generated meeting link so that the parent can join the scheduled trial class.
+AI Response / Development Summary
 
-The implementation also keeps a fallback/demo meeting-link mechanism for cases where external meeting integration is unavailable.
+DST must be handled by the timezone library rather than manually.
 
----
+The application should test dates around DST transitions.
 
-## Session 16 - Email Confirmation
+Important cases include:
 
-### Development Request
+A valid time before a DST transition
 
-Send confirmation emails after a successful booking.
+A valid time after a DST transition
 
-### AI Response
+A nonexistent local time during a spring-forward transition
 
-Email confirmation functionality was added to the backend.
+An ambiguous local time during a fall-back transition
 
-After successful booking and meeting creation, the system attempts to send confirmation emails containing the booking details and meeting link.
+The system should never assume that every local clock time maps to exactly one UTC instant.
 
-The booking itself remains persisted even if email delivery fails.
+9. Date and Time Validation
 
-This prevents an email-service failure from incorrectly removing an already-created booking.
+Prompt
 
-SMTP configuration is kept outside the source code using environment variables.
+What validations should be implemented for the booking API?
 
----
+AI Response / Development Summary
 
-## Session 17 - Error and Empty States
+Backend validation should cover:
 
-### Development Request
+Missing parent name
 
-Improve the frontend handling for unavailable mentors, duplicate bookings, validation failures and API errors.
+Invalid parent email
 
-### AI Response
+Missing timezone
 
-The frontend was updated to distinguish important booking states.
+Invalid IANA timezone
 
-These include:
+Missing date
 
-- Loading
-- Available mentors
-- No available mentors
-- Parent already booked at the selected time
-- Selected mentor becoming unavailable
-- Invalid input
-- API failure
-- Successful booking
-- Booking submission in progress
+Missing time
 
-The interface prevents invalid booking submissions and provides clear feedback instead of silently failing.
+Invalid date
 
----
+Invalid time
 
-## Session 18 - Backend Availability Verification
+Invalid date/time combination
 
-### Development Request
+Past booking
 
-Review the mentor availability implementation and verify that course filtering, working hours, conflicts, daily capacity and timezone handling are correctly enforced.
+Invalid request body
 
-### AI Response
+Unsupported values
 
-The mentor availability service was reviewed and verified to handle:
+Duplicate/conflicting booking requests
 
-- Course-specific mentor filtering
-- Active mentor filtering
-- Mentor working hours
-- Mentor-local calendar dates
-- Existing booking conflicts
-- Maximum daily booking capacity
-- UTC-to-local timezone conversion
-- Deterministic backend mentor selection
+Frontend validation improves UX, but backend validation remains authoritative.
 
-The service keeps the scheduling rules in the backend and avoids relying on frontend availability information as the final authority.
+10. Mentor Availability
 
----
+Prompt
 
-## Session 19 - Final Booking Flow Verification
+How should mentor availability be calculated?
 
-### Development Request
+AI Response / Development Summary
 
-Verify the complete booking flow after implementing the course and mentor-selection changes.
+Availability should be determined from actual database state.
 
-### AI Response
+For a requested booking:
 
-The complete flow was tested:
+Get all eligible mentors.
 
-1. Parent enters details.
-2. Parent selects a course/domain.
-3. Parent selects timezone.
-4. Parent selects date and time.
-5. Backend checks mentor availability.
-6. Eligible mentors are displayed.
-7. Parent selects a mentor.
-8. Backend revalidates the selected mentor.
-9. Booking is created.
-10. Google Meet information is associated with the booking.
-11. Confirmation information is displayed.
-12. Parent and mentor local times are shown correctly.
+Check their existing bookings.
 
-The selected mentor is preserved through the backend booking process rather than being silently replaced by another mentor.
+Check the daily capacity.
 
----
+Check overlapping bookings.
 
-## Session 20 - Final Project Verification
+Remove unavailable mentors.
 
-### Development Request
+Return available mentors or an appropriate alternative.
 
-Verify that the project is ready for final submission after completing the booking flow, mentor selection, timezone handling, validation and edge-case testing.
+The user should never see a mentor as available based only on frontend assumptions.
 
-### AI Response
+11. Automatic Mentor Assignment
 
-The final implementation was reviewed against the major assignment requirements.
+Prompt
 
-The completed system includes:
+Automatically assign an available mentor while keeping the system deterministic and maintainable.
 
-- React/Vite frontend
-- Node.js/Express backend
-- SQLite persistence
-- Luxon timezone handling
-- Course/domain selection
-- Course-specific mentor availability
-- Mentor selection
-- Backend-authoritative booking
-- Mentor working-hour validation
-- Maximum two trial classes per mentor per day
-- Booking conflict detection
-- Duplicate parent booking protection
-- UTC booking storage
-- Parent and mentor local time display
-- Validation and error handling
-- Loading and empty states
-- Booking confirmation
-- Google Meet integration
-- Email confirmation functionality
-- README documentation
-- AI development transcript
-- Testing and edge-case verification
+AI Response / Development Summary
 
-The final implementation was tested through the complete booking flow and the major scheduling and validation edge cases.
+The backend should own mentor assignment.
 
----
+A simple approach is:
 
-## Final Note
+Fetch mentors
+    ↓
+Filter mentors at capacity
+    ↓
+Filter conflicting mentors
+    ↓
+Sort/select eligible mentor
+    ↓
+Create booking with selected mentor
 
-This transcript records the major AI-assisted development sessions and implementation decisions made during the project.
+Because there are only 10 mentors, a simple and readable implementation is preferable to unnecessary optimization.
 
-It is intended to provide transparency about how AI assistance was used during development. It is a concise development record rather than a verbatim conversation transcript.
+The assignment should happen inside the booking transaction so that another concurrent request cannot take the same final capacity slot unexpectedly.
 
-The final implementation was reviewed and tested with the backend remaining authoritative over mentor eligibility, availability, capacity, conflict checking and booking creation.
+12. Conflict Detection
+
+Prompt
+
+Prevent duplicate or overlapping bookings.
+
+AI Response / Development Summary
+
+The backend should compare the requested booking instant against existing bookings using the application's defined class duration/conflict rules.
+
+A booking must not be accepted if it conflicts with the selected mentor's existing class.
+
+The API should return a clear response explaining that the requested slot is no longer available and, where possible, provide alternative times.
+
+13. Concurrent Booking Attempts
+
+Prompt
+
+How should simultaneous booking attempts be handled?
+
+AI Response / Development Summary
+
+Concurrency is a backend/database responsibility.
+
+The booking operation should be transactional.
+
+A robust SQLite approach can use a transaction that acquires the appropriate write lock before checking capacity and creating the booking.
+
+Conceptually:
+
+BEGIN TRANSACTION
+    ↓
+Check availability
+    ↓
+Check mentor capacity
+    ↓
+Assign mentor
+    ↓
+Insert booking
+    ↓
+COMMIT
+
+If the transaction fails:
+
+ROLLBACK
+
+The important principle is that checking availability and creating the booking must not be treated as two unrelated operations.
+
+14. Frontend Booking Experience
+
+Prompt
+
+Build a professional booking interface rather than a basic form.
+
+AI Response / Development Summary
+
+The frontend should provide:
+
+Clear form fields
+
+Timezone selector
+
+Date/time selector
+
+Availability feedback
+
+Loading state
+
+Disabled submit button during booking
+
+Validation messages
+
+Success state
+
+Error state
+
+Empty state where appropriate
+
+Responsive layout
+
+Clear booking summary
+
+The user should always understand what the application is doing.
+
+15. Smart Best-Time Recommendation
+
+Prompt
+
+Add a feature that recommends the best available trial time.
+
+AI Response / Development Summary
+
+A smart recommendation feature can evaluate candidate times using:
+
+Mentor availability
+
+Mentor daily capacity
+
+Existing bookings
+
+Parent timezone
+
+Mentor timezone
+
+Valid booking windows
+
+DST correctness
+
+The recommendation must still be calculated from actual backend availability.
+
+It should be presented as a convenience, not as a replacement for the normal booking controls.
+
+16. Timezone Visualizer
+
+Prompt
+
+Add a timezone visualizer so users can understand the same class time in different locations.
+
+AI Response / Development Summary
+
+The visualizer should show the same UTC instant converted into:
+
+Parent local time
+Mentor local time
+UTC
+
+Example conceptual display:
+
+Class time
+
+Parent:
+Asia/Kolkata
+7:30 PM
+
+Mentor:
+America/New_York
+10:00 AM
+
+UTC:
+2:30 PM
+
+The actual values must be generated dynamically.
+
+17. Live Class Countdown
+
+Prompt
+
+Add a live countdown for the booked trial class.
+
+AI Response / Development Summary
+
+The countdown should be based on the booking's UTC timestamp.
+
+The frontend should calculate:
+
+bookingUtc - currentUtc
+
+and display the remaining duration.
+
+At zero:
+
+Show that the class is ready.
+
+Enable the Join Class action.
+
+Preserve the booking-specific meeting link.
+
+The countdown must not depend on a hardcoded local timezone offset.
+
+18. Booking Confirmation
+
+Prompt
+
+Design the booking confirmation experience.
+
+AI Response / Development Summary
+
+After successful booking, the user should receive a clear confirmation containing:
+
+Booking ID
+
+Parent name
+
+Mentor name
+
+Parent local date/time
+
+Mentor local date/time
+
+Timezone information
+
+Class/meeting link
+
+Countdown
+
+Booking status
+
+The confirmation should make it easy to understand exactly when the class occurs.
+
+19. Booking-Specific Meeting Link
+
+Prompt
+
+The Google Meet/class link must not be the same common link for every user. Make the class link booking-specific.
+
+AI Response / Development Summary
+
+A global meeting URL must not be used.
+
+Each booking should receive a booking-specific classroom or meeting link.
+
+The architecture should allow:
+
+Booking #101 → unique class URL
+Booking #102 → unique class URL
+Booking #103 → unique class URL
+
+If Google Calendar/Google Meet is used, the meeting should be created or associated with the specific booking.
+
+If a custom classroom route is used, it should contain a secure booking-specific identifier/token and validate the booking before displaying class details.
+
+20. Google OAuth
+
+Prompt
+
+Google OAuth is being used for Google Calendar/Meet integration. Explain how it should be documented and configured.
+
+AI Response / Development Summary
+
+The README should clearly document:
+
+Create/configure the Google Cloud project.
+
+Enable the required Google Calendar API.
+
+Configure OAuth consent.
+
+Create OAuth credentials.
+
+Configure the authorized redirect URI.
+
+Add the required environment variables.
+
+Complete the OAuth authorization flow.
+
+Store credentials/tokens securely.
+
+Never commit client secrets or tokens.
+
+The exact environment variable names must match the implementation.
+
+21. Google Calendar / Google Meet Integration
+
+Prompt
+
+Use Google Calendar/Meet for class creation where configured, while keeping the booking-specific nature of the meeting.
+
+AI Response / Development Summary
+
+The application should create a calendar event for the specific booking and obtain a corresponding conference/class link.
+
+The database should associate the generated class/meeting URL with the booking.
+
+The system should handle external service failures gracefully.
+
+A failed email or external integration should not silently corrupt the booking transaction.
+
+22. Email Notifications
+
+Prompt
+
+Send a confirmation email after booking.
+
+AI Response / Development Summary
+
+The email should include:
+
+Parent name
+
+Mentor name
+
+Class date/time
+
+Parent timezone
+
+Mentor timezone
+
+Booking information
+
+Booking-specific class link
+
+SMTP credentials must be stored in environment variables.
+
+Example variables may include:
+
+SMTP_HOST
+SMTP_PORT
+SMTP_SECURE
+SMTP_USER
+SMTP_PASSWORD
+MAIL_FROM
+
+The exact variable names must match the actual project.
+
+23. Email Failure Handling
+
+Prompt
+
+What should happen if a booking succeeds but the confirmation email fails?
+
+AI Response / Development Summary
+
+The database booking should not be rolled back solely because an email provider failed after the booking was successfully committed.
+
+The application should:
+
+Complete the booking transaction.
+
+Attempt email delivery.
+
+Log the email failure safely.
+
+Return the booking result to the frontend.
+
+Allow the user to access the confirmation/class link through the application.
+
+This prevents a temporary SMTP problem from causing inconsistent booking state.
+
+24. Rescheduling
+
+Prompt
+
+Add a Change My Booking flow.
+
+AI Response / Development Summary
+
+Rescheduling should be handled transactionally.
+
+Conceptually:
+
+Validate new time
+      ↓
+Check availability
+      ↓
+Find eligible mentor
+      ↓
+Update booking
+      ↓
+Update mentor assignment if required
+      ↓
+Commit
+
+The old booking slot must not be released before the new slot is successfully secured unless the operation can safely roll back.
+
+The same timezone and validation rules used during initial booking should apply.
+
+25. Cancellation
+
+Prompt
+
+Add cancellation support without physically deleting useful booking history.
+
+AI Response / Development Summary
+
+A status such as:
+
+CONFIRMED
+CANCELLED
+COMPLETED
+
+can preserve the booking record while making cancelled capacity available according to the application's rules.
+
+Cancellation should be validated server-side.
+
+26. Mentor Profiles
+
+Prompt
+
+Add mentor profile cards.
+
+AI Response / Development Summary
+
+Mentor profile information should come from seeded database data.
+
+The application should not invent real qualifications or claims about actual people.
+
+If the profiles are demo data, the UI/documentation should make that clear.
+
+27. Admin Dashboard
+
+Prompt
+
+Add an admin/operations dashboard.
+
+AI Response / Development Summary
+
+A dashboard can provide:
+
+Total mentor count
+
+Total booking count
+
+Today's classes
+
+Mentor utilization/load
+
+Upcoming trial classes
+
+Booking status information
+
+Basic operational analytics
+
+The dashboard should use real database data rather than hardcoded statistics.
+
+An admin route such as:
+
+/admin
+
+can provide the interface.
+
+Admin authentication must not expose credentials in source code.
+
+28. Analytics
+
+Prompt
+
+Add analytics based on actual application data.
+
+AI Response / Development Summary
+
+Useful metrics include:
+
+Total bookings
+
+Confirmed bookings
+
+Cancelled bookings
+
+Upcoming classes
+
+Mentor booking load
+
+Daily booking volume
+
+Analytics must be derived from database records.
+
+29. Health Endpoint
+
+Prompt
+
+Add a health endpoint.
+
+AI Response / Development Summary
+
+A health endpoint such as:
+
+GET /api/health
+
+should report whether the backend is running and, where practical, whether the database is reachable.
+
+This helps during local development and deployment diagnostics.
+
+30. Security
+
+Prompt
+
+Review the project for security issues.
+
+AI Response / Development Summary
+
+Security requirements include:
+
+Validate every API input.
+
+Do not rely only on frontend validation.
+
+Use parameterized database queries/ORM operations.
+
+Do not expose database errors or stack traces to users.
+
+Keep secrets in environment variables.
+
+Do not commit .env.
+
+Validate IANA timezones.
+
+Validate email addresses.
+
+Validate dates and times.
+
+Protect admin functionality.
+
+Avoid predictable booking access tokens where sensitive data is exposed.
+
+Prevent duplicate submissions.
+
+Handle malformed JSON/request bodies.
+
+Do not expose OAuth secrets.
+
+31. Performance
+
+Prompt
+
+Keep the application efficient without overengineering it.
+
+AI Response / Development Summary
+
+Because the assignment only requires 10 mentors, the implementation should prioritize correctness and clarity.
+
+Avoid:
+
+Repeated database queries for the same data
+
+N+1 query patterns
+
+Repeated timezone conversions
+
+Unnecessary API calls
+
+At the same time, avoid complex infrastructure that does not provide value for this assignment.
+
+32. Testing Strategy
+
+Prompt
+
+What should be tested before submission?
+
+AI Response / Development Summary
+
+The important tests include:
+
+Validation
+
+Missing name
+
+Invalid email
+
+Missing timezone
+
+Invalid timezone
+
+Invalid date/time
+
+Past booking
+
+Timezone
+
+UTC conversion
+
+Parent local time
+
+Mentor local time
+
+DST transition
+
+Booking
+
+Successful booking
+
+Mentor assignment
+
+Mentor capacity
+
+Conflict detection
+
+No available mentor
+
+Alternative time response
+
+Reliability
+
+Duplicate booking attempt
+
+Concurrent booking attempts
+
+Transaction rollback
+
+Database failure
+
+Email failure handling
+
+API
+
+Correct status codes
+
+Correct JSON responses
+
+Error handling
+
+The project should not assume that code works simply because it compiles or starts.
+
+33. Debugging and Verification
+
+Prompt
+
+When an issue occurs, do not just patch the visible symptom. Trace the complete flow.
+
+AI Response / Development Summary
+
+The debugging process should be:
+
+Reproduce
+   ↓
+Identify failing layer
+   ↓
+Inspect request
+   ↓
+Inspect backend validation
+   ↓
+Inspect database state
+   ↓
+Inspect timezone conversion
+   ↓
+Inspect transaction
+   ↓
+Fix root cause
+   ↓
+Run tests
+   ↓
+Retest original scenario
+
+For booking issues, the entire chain should be checked:
+
+Frontend
+→ API
+→ validation
+→ timezone conversion
+→ availability
+→ mentor assignment
+→ transaction
+→ database
+→ meeting creation
+→ email
+→ frontend confirmation
+
+34. Responsive Design
+
+Prompt
+
+Make the application mobile-friendly.
+
+AI Response / Development Summary
+
+The UI should work on:
+
+Desktop
+
+Laptop
+
+Tablet
+
+Mobile
+
+Forms should remain usable on smaller screens.
+
+Important booking information should remain visible without requiring horizontal scrolling.
+
+35. Loading, Empty, Error and Success States
+
+Prompt
+
+Make the UX feel complete.
+
+AI Response / Development Summary
+
+The application should explicitly handle:
+
+Loading
+
+Display progress while:
+
+Checking availability
+
+Creating a booking
+
+Loading dashboard information
+
+Empty
+
+Examples:
+
+No available mentors
+
+No upcoming classes
+
+No analytics data
+
+Error
+
+Examples:
+
+Invalid input
+
+Server error
+
+Booking conflict
+
+No mentor
+
+External service failure
+
+Success
+
+After booking:
+
+Show confirmation
+
+Show mentor
+
+Show class time
+
+Show class link
+
+Show countdown
+
+36. Micro-Animations
+
+Prompt
+
+Add subtle animations without reducing usability.
+
+AI Response / Development Summary
+
+Animations can be used for:
+
+Form transitions
+
+Availability feedback
+
+Booking success
+
+Countdown
+
+Card transitions
+
+Button feedback
+
+Animations should remain lightweight and should not interfere with keyboard navigation or accessibility.
+
+37. Git and .gitignore
+
+Prompt
+
+Prepare the repository correctly for submission.
+
+AI Response / Development Summary
+
+The repository should not commit:
+
+node_modules/
+.env
+.env.*
+database files that are intentionally local/generated
+logs/
+build output
+temporary files
+credentials
+OAuth secrets
+
+The repository should contain useful source files, documentation, seed data where appropriate, and tests.
+
+Commit messages should describe meaningful development steps.
+
+38. README Documentation
+
+Prompt
+
+Create a complete README that explains exactly how to install, configure, run, test, and understand the project.
+
+AI Response / Development Summary
+
+The README should contain:
+
+Project overview
+
+Features
+
+Technology stack
+
+Architecture
+
+Project structure
+
+Prerequisites
+
+Installation
+
+Environment variables
+
+Database setup
+
+Seed instructions
+
+Google OAuth setup
+
+Calendar/Meet setup
+
+SMTP setup
+
+Backend startup
+
+Frontend startup
+
+API endpoints
+
+Booking flow
+
+Timezone/DST handling
+
+Mentor assignment
+
+Capacity/concurrency handling
+
+Error handling
+
+Testing
+
+Production build
+
+Troubleshooting
+
+Final verification checklist
+
+Known limitations/future improvements
+
+The README must describe the actual final implementation, not features that are only planned.
+
+39. AI Transcript Requirement
+
+Prompt
+
+The assignment explicitly requires a transcript of AI-assisted development. What should TRANSCRIPT.md contain?
+
+AI Response / Development Summary
+
+TRANSCRIPT.md should be a root-level Markdown document that records important AI-assisted development interactions.
+
+It should include:
+
+Important prompts
+
+Important AI responses or response summaries
+
+Design discussions
+
+Architecture decisions
+
+Debugging discussions
+
+Testing discussions
+
+Improvements requested during development
+
+Final verification discussions
+
+The transcript must be honest.
+
+The assignment specifically says not to fabricate AI sessions that did not happen.
+
+Therefore, where exact historical wording is unavailable, the transcript should identify the content as a development summary instead of pretending it is a verbatim chat.
+
+40. Incremental Development
+
+Prompt
+
+Build the project incrementally instead of generating an unverified application all at once.
+
+AI Response / Development Summary
+
+The recommended sequence is:
+
+Requirements
+    ↓
+Architecture
+    ↓
+Project setup
+    ↓
+Database
+    ↓
+Mentors
+    ↓
+Booking API
+    ↓
+Timezone handling
+    ↓
+Capacity/conflicts
+    ↓
+Frontend
+    ↓
+Confirmation
+    ↓
+Email
+    ↓
+Google integration
+    ↓
+Extra features
+    ↓
+Tests
+    ↓
+README
+    ↓
+Final audit
+
+After each major feature, verify that the existing system still works.
+
+41. Debugging Real Development Issues
+
+Prompt
+
+When the application shows a problem, analyze the actual implementation and logs instead of assuming the cause.
+
+AI Response / Development Summary
+
+Development involved checking:
+
+Frontend requests
+
+Backend routes
+
+Database operations
+
+Environment variables
+
+SMTP configuration
+
+OAuth configuration
+
+Timezone conversion
+
+Booking conflicts
+
+Meeting/class links
+
+Test output
+
+Development server output
+
+For example, when SMTP authentication failed, the error was treated as an email configuration problem rather than a booking/database failure.
+
+The principle was to isolate external integration failures from core booking state.
+
+42. Final Evaluator Review
+
+Prompt
+
+Review the project from an evaluator's perspective and identify what must be verified before submission.
+
+AI Response / Development Summary
+
+The final review should verify:
+
+Functional
+
+Parent can book.
+
+Mentor is automatically assigned.
+
+Mentor capacity is respected.
+
+Conflicts are detected.
+
+No-mentor case is handled.
+
+Booking times are correct.
+
+UTC is stored.
+
+Parent time is correct.
+
+Mentor time is correct.
+
+DST works.
+
+Meeting link is booking-specific.
+
+Confirmation is shown.
+
+Email works when configured.
+
+Reliability
+
+Duplicate submissions are handled.
+
+Concurrent bookings are protected.
+
+Transactions are correct.
+
+External failures do not corrupt booking state.
+
+UX
+
+Validation is clear.
+
+Loading state exists.
+
+Errors are understandable.
+
+Success state is clear.
+
+Mobile layout works.
+
+Countdown works.
+
+Documentation
+
+README is complete.
+
+Setup instructions are accurate.
+
+Environment variables are documented.
+
+OAuth setup is documented.
+
+Testing commands are documented.
+
+TRANSCRIPT.md exists.
+
+43. Final Requirement Audit
+
+Prompt
+
+Perform a final requirement-by-requirement audit before submission.
+
+AI Response / Development Summary
+
+The final audit should compare the implementation directly against the assignment.
+
+Core stack
+
+React + Vite
+
+Node.js + Express
+
+SQLite
+
+Luxon
+
+REST/JSON
+
+Booking
+
+Parent details
+
+Timezone
+
+Date/time
+
+Mentor assignment
+
+Confirmation
+
+Class link
+
+Mentor rules
+
+10 mentors
+
+Maximum 2 trial classes per mentor per day
+
+Conflict detection
+
+Automatic assignment
+
+Timezone
+
+IANA identifiers
+
+UTC persistence
+
+Parent conversion
+
+Mentor conversion
+
+DST
+
+Validation
+
+Required fields
+
+Email
+
+Timezone
+
+Date/time
+
+Past booking
+
+Invalid request
+
+Reliability
+
+Transactional booking
+
+Concurrency handling
+
+Duplicate submission protection
+
+External-service failure handling
+
+Testing
+
+Timezone
+
+DST
+
+Capacity
+
+Conflicts
+
+Assignment
+
+No mentor
+
+Validation
+
+Concurrency where practical
+
+Documentation
+
+README
+
+TRANSCRIPT.md
+
+Setup
+
+Environment
+
+API
+
+Architecture
+
+Testing
+
+Troubleshooting
+
+44. Final Quality Checklist
+
+Before submitting the project, the following should be checked.
+
+Application
+
+Frontend starts successfully.
+
+Backend starts successfully.
+
+Database initializes successfully.
+
+Seed data is available.
+
+Booking form works.
+
+Booking API works.
+
+Mentor assignment works.
+
+Capacity rule works.
+
+Conflict detection works.
+
+No-mentor scenario works.
+
+Timezone conversion works.
+
+DST behavior works.
+
+Confirmation page works.
+
+Booking-specific class link works.
+
+Countdown works.
+
+Email works when configured.
+
+Google integration works when configured.
+
+Admin dashboard works when configured.
+
+Code Quality
+
+Backend validates all input.
+
+Database operations are safe.
+
+Transactions protect booking creation.
+
+Errors are handled cleanly.
+
+No secrets are committed.
+
+No unnecessary hardcoded offsets exist.
+
+Code is modular and understandable.
+
+Testing
+
+Automated tests pass.
+
+Timezone tests pass.
+
+DST tests pass.
+
+Capacity tests pass.
+
+Conflict tests pass.
+
+Validation tests pass.
+
+Concurrency behavior has been checked.
+
+Documentation
+
+README.md is present.
+
+TRANSCRIPT.md is present.
+
+Setup instructions match the final project.
+
+Environment variables are documented.
+
+OAuth setup is documented.
+
+Email setup is documented.
+
+Test commands are documented.
+
+Troubleshooting is documented.
+
+45. Final Development Conclusion
+
+The final application should be treated as a production-style demonstration of a reliable booking workflow rather than only a visual assignment.
+
+The most important engineering principles followed during development are:
+
+The backend is the source of truth.
+
+Booking creation is transactional.
+
+UTC is used as the canonical stored booking instant.
+
+IANA timezones are used instead of hardcoded offsets.
+
+DST is delegated to a timezone-aware library.
+
+Mentor capacity is enforced server-side.
+
+Conflicts are checked against actual database state.
+
+Frontend validation is supplemented by backend validation.
+
+External service failures are handled separately from core booking state.
+
+Each booking receives a booking-specific class/meeting link.
+
+Tests cover important business rules.
+
+Documentation explains how to reproduce and operate the project.
+
+AI assistance is documented honestly in this transcript.
+
+46. Submission Structure
+
+The final repository should contain the relevant files in a structure similar to:
+
+codeyoung-trial-booking/
+│
+├── frontend/
+├── backend/
+├── README.md
+├── TRANSCRIPT.md
+├── .gitignore
+├── package.json
+└── other project configuration files
+
+The exact folder/file names should match the final implementation.
+
+47. Important Honesty Requirement
+
+This transcript must not be used to claim that an AI conversation happened if it did not.
+
+The purpose of this document is to satisfy the assignment's AI-development-transcript requirement while accurately representing the development process.
+
+If the repository contains additional actual AI prompts/responses that are not represented here, they should be added before submission.
+
+Likewise, if a feature described in this document was discussed but was not actually implemented in the final application, the README should not describe that feature as implemented.
+
+The final documentation must always match the actual submitted code.
+
+End of TRANSCRIPT.md
